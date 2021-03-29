@@ -1,0 +1,116 @@
+[
+  {
+    "name": "datetime",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "log_data",
+    "type": "RECORD",
+    "fields": [
+      {
+        "name": "snippet",
+        "type": "STRING"
+      },
+      {
+        "name": "client_ip",
+        "type": "STRING"
+      },
+      {
+        "name": "processTime",
+        "type": "STRING"
+      },
+      {
+        "name": "server",
+        "type": "STRING"
+      },
+      {
+        "name": "client_id",
+        "type": "STRING"
+      },
+      {
+        "name": "prefix",
+        "type": "STRING"
+      },
+      {
+        "name": "typeService",
+        "type": "STRING"
+      },
+      {
+        "name": "virtual_account",
+        "type": "STRING"
+      },
+      {
+        "name": "clientEncryptedResponse",
+        "type": "RECORD",
+        "fields": [
+          {
+            "name": "status",
+            "type": "STRING"
+          },
+          {
+            "name": "message",
+            "type": "STRING"
+          },
+          {
+            "name": "data",
+            "type": "STRING"
+          }
+        ]
+      },
+      {
+        "name": "additionalError",
+        "type": "STRING"
+      },
+      {
+        "name": "domainInfo",
+        "type": "RECORD",
+        "fields": [
+          {
+            "name": "QUERY_STRING",
+            "type": "STRING"
+          },
+          {
+            "name": "REQUEST_URI",
+            "type": "STRING"
+          },
+          {
+            "name": "SERVER_ADDR",
+            "type": "STRING"
+          },
+          {
+            "name": "SERVER_NAME",
+            "type": "STRING"
+          },
+          {
+            "name": "SERVER_PORT",
+            "type": "STRING"
+          }
+        ]
+      },
+      {
+        "name": "error",
+        "type": "STRING"
+      },
+      {
+        "name": "clientResponse",
+        "type": "STRING"
+      },
+      {
+        "name": "clientRequest",
+        "type": "STRING"
+      },
+      {
+        "name": "clientParsedRequest",
+        "type": "STRING"
+      }
+    ]
+  },
+  {
+    "name": "service",
+    "type": "STRING"
+  },
+  {
+    "name": "transact_id",
+    "type": "STRING"
+  }
+]
