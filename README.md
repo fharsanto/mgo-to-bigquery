@@ -2,7 +2,7 @@
 This guidence purpose is for importing MongoDB collections to BigQuery tables.
 
 ## Analyze MongoDB collection
-Analyze the collection structure for checking which field is consistent occurs in collections. For this things i'm using ![Variety](https://github.com/variety/variety) 
+Analyze the collection structure for checking which field is consistent occurs in collections. For this things i'm using [Variety](https://github.com/variety/variety) 
 
 Syntax command is quite straight forward
 ```
@@ -26,7 +26,7 @@ Here's the sample output of variety command
 From this output analysis, there's few inconsistent field / data. 
 
 Wait it for a minutes!!! It's only for one collection, what about 52 collections?
-Hmm, must do 52x variety command and after that we must find average of occurrences in 52 collections. How do we find that kind of data? ![Jupyter Notebook](https://jupyter.org/) and python came to rescue.
+Hmm, must do 52x variety command and after that we must find average of occurrences in 52 collections. How do we find that kind of data? [Jupyter Notebook](https://jupyter.org/) and python came to rescue.
 
 Here's the output of the Notebook
 ```
