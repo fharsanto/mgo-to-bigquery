@@ -10,6 +10,7 @@ mongo --quiet YourDatabaseName --eval "var collection = 'YourCollectionName', ou
 ```
 
 Here's the sample output of variety command
+
 | key                       | types                     | occurrences | percents|
 | ------------------------- | ------------------------- | ----------- | ------- |
 | _id                       | ObjectId                  |       22898 | 100.000 |
