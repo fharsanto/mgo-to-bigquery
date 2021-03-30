@@ -73,7 +73,7 @@ Based on previous [section](#preparing-the-data), we can define which field more
 ```
 In this table we can restore row per row json as string json
 
-1. real data
+2. real data
 [schema](schema_.json)
 After restore we can insert select from raw data table
 
@@ -91,7 +91,56 @@ In active data set, click new table button:
 - Custom field delimiter: fill in with `%` because that char not found in the data
 - Quoted newline: checked
 - Jagged rows: checked
+- Click Create table
 
 ### Restore data to real data table
+Create empty table for real data.
+In active data set, click new table button:
+- Create table from: Empty table
+- Table name: insert `real_data`
+- Schema, click Edit as text, fill the schema with [this](schema_.json)
+- Click Create table
 
-
+After real_data created, execute this query:
+```
+INSERT `NameOfProject.NameOfDataSet.real_data`(datetime, service, transact_id, log_data)
+SELECT
+    TIMESTAMP(JSON_EXTRACT_SCALAR(data,'$.datetime')) AS datetime,
+    JSON_EXTRACT_SCALAR(data,'$.service') AS service,
+    JSON_EXTRACT_SCALAR(data,'$.transact_id') AS transact_id,
+    STRUCT<snippet string, client_ip string, processTime string, server string,
+    client_id string, prefix string, typeService string, virtual_account string,
+    clientEncryptedResponse STRUCT<status string, message string, `data` string>,
+    additionalError string, domainInfo STRUCT<QUERY_STRING string, REQUEST_URI string, 
+    SERVER_ADDR string, SERVER_NAME string, SERVER_PORT string>, `error` string,
+    clientResponse string, clientRequest string, clientParsedRequest string>
+    (
+      JSON_EXTRACT_SCALAR(data, '$.log_data.snippet'),
+      JSON_EXTRACT_SCALAR(data, '$.log_data.client_ip'),
+      JSON_EXTRACT_SCALAR(data, '$.log_data.processTime'),
+      JSON_EXTRACT_SCALAR(data, '$.log_data.server'),
+      JSON_EXTRACT_SCALAR(data, '$.log_data.client_id'),
+      JSON_EXTRACT_SCALAR(data, '$.log_data.prefix'),
+      JSON_EXTRACT_SCALAR(data, '$.log_data.typeService'),
+      JSON_EXTRACT_SCALAR(data, '$.log_data.virtual_account'),
+      (
+        JSON_EXTRACT_SCALAR(data, '$.log_data.clientEncryptedResponse.status'),
+        JSON_EXTRACT_SCALAR(data, '$.log_data.clientEncryptedResponse.message'),
+        JSON_EXTRACT_SCALAR(data, '$.log_data.clientEncryptedResponse.data')
+        ),
+      JSON_EXTRACT_SCALAR(data, '$.log_data.additionalError'),
+      (
+        JSON_EXTRACT_SCALAR(data, '$.log_data.domainInfo.QUERY_STRING'),
+        JSON_EXTRACT_SCALAR(data, '$.log_data.domainInfo.REQUEST_URI'),
+        JSON_EXTRACT_SCALAR(data, '$.log_data.domainInfo.SERVER_NAME'),
+        JSON_EXTRACT_SCALAR(data, '$.log_data.domainInfo.SERVER_ADDR'),
+        JSON_EXTRACT_SCALAR(data, '$.log_data.domainInfo.SERVER_PORT')
+      ),
+      JSON_EXTRACT(data, '$.log_data.error'),
+      JSON_EXTRACT(data, '$.log_data.clientResponse'),
+      JSON_EXTRACT(data, '$.log_data.clientRequest'),
+      JSON_EXTRACT(data, '$.log_data.clientParsedRequest')
+    ) as log_data
+FROM
+  `NameOfProject.NameOfDataSet.raw_data`
+```
