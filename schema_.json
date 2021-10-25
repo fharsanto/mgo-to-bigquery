@@ -1,0 +1,74 @@
+[
+  {
+    "name": "datetime",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "log_data",
+    "type": "RECORD",
+    "fields": [
+      {
+        "name": "snippet",
+        "type": "STRING"
+      },
+      {
+        "name": "client_ip",
+        "type": "STRING"
+      },
+      {
+        "name": "process_time",
+        "type": "STRING"
+      },
+      {
+        "name": "server",
+        "type": "STRING"
+      },
+      {
+        "name": "client_id",
+        "type": "STRING"
+      },
+      {
+        "name": "type_service",
+        "type": "STRING"
+      },
+      {
+        "name": "domain_info",
+        "type": "RECORD",
+        "fields": [
+          {
+            "name": "QUERY_STRING",
+            "type": "STRING"
+          },
+          {
+            "name": "REQUEST_URI",
+            "type": "STRING"
+          },
+          {
+            "name": "SERVER_ADDR",
+            "type": "STRING"
+          },
+          {
+            "name": "SERVER_NAME",
+            "type": "STRING"
+          },
+          {
+            "name": "SERVER_PORT",
+            "type": "STRING"
+          }
+        ]
+      },
+      {
+        "name": "error",
+        "type": "STRING"
+      }
+    ]
+  },
+  {
+    "name": "service",
+    "type": "STRING"
+  },
+  {
+    "name": "primary_id",
+    "type": "STRING"
+  }
+]
