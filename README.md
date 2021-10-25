@@ -11,18 +11,16 @@ mongo --quiet YourDatabaseName --eval "var collection = 'YourCollectionName', ou
 
 Here's the sample output of variety command
 
-| key                       | types                     | occurrences | percents|
-| ------------------------- | ------------------------- | ----------- | ------- |
-| _id                       | ObjectId                  |       22898 | 100.000 |
-| datetime                  | Date                      |       22898 | 100.000 |
-| log_data                  | Object                    |       22898 | 100.000 |
-| log_data.client_ip        | String                    |       22898 | 100.000 |
-| log_data.typeService      | String                    |       22176 |  96.846 |
-| log_data.clientStatus     | String (765),null (4)     |         769 |   3.358 |
-| log_data.clientMessage    | String (27),Boolean (4)   |          31 |   0.135 |
-| log_data.clientTrx_amount | String (25),Number (2)    |          27 |   0.117 |
-| log_data.clientDebit_no   | String                    |          15 |   0.065 |
-| log_data.clientVA         | String                    |           7 |   0.030 |
+| key                   | types                   | occurrences | percents |
+| --------------------- | ----------------------- | ----------- | -------- |
+| _id                   | ObjectId                | 22898       | 100.000  |
+| datetime              | Date                    | 22898       | 100.000  |
+| log_data              | Object                  | 22898       | 100.000  |
+| log_data.client_ip    | String                  | 22898       | 100.000  |
+| log_data.type_service | String                  | 22176       | 96.846   |
+| log_data.status       | String (765),null (4)   | 769         | 3.358    |
+| log_data.message      | String (27),Boolean (4) | 31          | 0.135    |
+| log_data.client_quota | String (25),Number (2)  | 27          | 0.117    |
 
 From this output analysis, there's few inconsistent field / data. 
 
@@ -34,22 +32,20 @@ Here's the output of the Notebook
 _id                                                              100.000000
 datetime                                                         100.000000
 log_data                                                         100.000000
-log_data.clientEncryptedResponse                                 100.000000
 log_data.client_ip                                               100.000000
-log_data.domainInfo                                              100.000000
-log_data.domainInfo.QUERY_STRING                                 100.000000
-log_data.domainInfo.REQUEST_URI                                  100.000000
-log_data.clientRequest                                            96.556530
-log_data.clientRequest.client_id                                  94.595411
-log_data.clientEncryptedResponse.data                             69.757025
+log_data.domain_info                                             100.000000
+log_data.domain_info.QUERY_STRING                                100.000000
+log_data.domain_info.REQUEST_URI                                 100.000000
+log_data.type_service                                             96.556530
+log_data.status                                                   94.595411
 ```
 Apparently our analysis within single collection is represents of 52 collections.
 
 ### Preparing the data
-Exporting all collection to json format, we can loop this format command within bash script, it's using js file because we need rid or formatting the column, like `_id` or `transport_id` (because the type is ObjectId)
+Exporting all collection to json format, we can loop this format command within bash script, it's using js file because we need rid or formatting the column, like `_id` or `primary_id` (because the type is ObjectId)
 
 ```
-mongo --quiet bni_collection_log --eval "var tableName = '$i'" aggr.js > pathOfJsonFile
+mongo --quiet YourDatabaseName --eval "var tableName = '$i'" aggr.js > pathOfJsonFile
 ```
 
 After that, we must get rid of bracket array (thanks to [jq](https://stedolan.github.io/jq/) for helping this things out), and replace to newline format based on google json format, see [this](https://cloud.google.com/bigquery/docs/loading-data-cloud-storage-json) and [this](https://cloud.google.com/blog/products/bigquery/inside-capacitor-bigquerys-next-generation-columnar-storage-format)
@@ -104,43 +100,28 @@ In active data set, click new table button:
 
 After real_data created, execute this query:
 ```
-INSERT `NameOfProject.NameOfDataSet.real_data`(datetime, service, transact_id, log_data)
+INSERT `NameOfProject.NameOfDataSet.real_data`(datetime, service, primary_id, log_data)
 SELECT
     TIMESTAMP(JSON_EXTRACT_SCALAR(data,'$.datetime')) AS datetime,
     JSON_EXTRACT_SCALAR(data,'$.service') AS service,
-    JSON_EXTRACT_SCALAR(data,'$.transact_id') AS transact_id,
-    STRUCT<snippet string, client_ip string, processTime string, server string,
-    client_id string, prefix string, typeService string, virtual_account string,
-    clientEncryptedResponse STRUCT<status string, message string, `data` string>,
-    additionalError string, domainInfo STRUCT<QUERY_STRING string, REQUEST_URI string, 
-    SERVER_ADDR string, SERVER_NAME string, SERVER_PORT string>, `error` string,
-    clientResponse string, clientRequest string, clientParsedRequest string>
+    JSON_EXTRACT_SCALAR(data,'$.primary_id') AS primary_id,
+    STRUCT<snippet string, client_ip string, process_time string, server string,
+    client_id string, type_service string, `error` string>
     (
       JSON_EXTRACT_SCALAR(data, '$.log_data.snippet'),
       JSON_EXTRACT_SCALAR(data, '$.log_data.client_ip'),
-      JSON_EXTRACT_SCALAR(data, '$.log_data.processTime'),
+      JSON_EXTRACT_SCALAR(data, '$.log_data.process_time'),
       JSON_EXTRACT_SCALAR(data, '$.log_data.server'),
       JSON_EXTRACT_SCALAR(data, '$.log_data.client_id'),
-      JSON_EXTRACT_SCALAR(data, '$.log_data.prefix'),
-      JSON_EXTRACT_SCALAR(data, '$.log_data.typeService'),
-      JSON_EXTRACT_SCALAR(data, '$.log_data.virtual_account'),
+      JSON_EXTRACT_SCALAR(data, '$.log_data.type_service'),
       (
-        JSON_EXTRACT_SCALAR(data, '$.log_data.clientEncryptedResponse.status'),
-        JSON_EXTRACT_SCALAR(data, '$.log_data.clientEncryptedResponse.message'),
-        JSON_EXTRACT_SCALAR(data, '$.log_data.clientEncryptedResponse.data')
-        ),
-      JSON_EXTRACT_SCALAR(data, '$.log_data.additionalError'),
-      (
-        JSON_EXTRACT_SCALAR(data, '$.log_data.domainInfo.QUERY_STRING'),
-        JSON_EXTRACT_SCALAR(data, '$.log_data.domainInfo.REQUEST_URI'),
-        JSON_EXTRACT_SCALAR(data, '$.log_data.domainInfo.SERVER_NAME'),
-        JSON_EXTRACT_SCALAR(data, '$.log_data.domainInfo.SERVER_ADDR'),
-        JSON_EXTRACT_SCALAR(data, '$.log_data.domainInfo.SERVER_PORT')
+        JSON_EXTRACT_SCALAR(data, '$.log_data.domain_info.QUERY_STRING'),
+        JSON_EXTRACT_SCALAR(data, '$.log_data.domain_info.REQUEST_URI'),
+        JSON_EXTRACT_SCALAR(data, '$.log_data.domain_info.SERVER_NAME'),
+        JSON_EXTRACT_SCALAR(data, '$.log_data.domain_info.SERVER_ADDR'),
+        JSON_EXTRACT_SCALAR(data, '$.log_data.domain_info.SERVER_PORT')
       ),
-      JSON_EXTRACT(data, '$.log_data.error'),
-      JSON_EXTRACT(data, '$.log_data.clientResponse'),
-      JSON_EXTRACT(data, '$.log_data.clientRequest'),
-      JSON_EXTRACT(data, '$.log_data.clientParsedRequest')
+      JSON_EXTRACT(data, '$.log_data.error')
     ) as log_data
 FROM
   `NameOfProject.NameOfDataSet.raw_data`
